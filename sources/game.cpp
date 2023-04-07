@@ -143,16 +143,16 @@ void ariel::Game::reshuffle(vector<Card> &pl1ThrownCards, vector<Card> &pl2Throw
     for (const Card &card: pl1ThrownCards) {
         pl1Deck.push_back(card);
     }
-    unsigned seed = time(nullptr);
-    shuffle(pl1Deck.begin(), (pl1Deck.end()), default_random_engine(seed));
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::shuffle(pl1Deck.begin(), pl1Deck.end(), generator);
     pl1.setPlayerDeck(pl1Deck);
     pl1ThrownCards.clear();
     vector<Card> pl2Deck = pl2.getPlayerDeck();
     for (const Card &card: pl1ThrownCards) {
         pl1Deck.push_back(card);
     }
-    seed = time(nullptr);
-    shuffle(pl2Deck.begin(), (pl2Deck.end()), default_random_engine(seed));
+    std::shuffle(pl2Deck.begin(), pl2Deck.end(), generator);
     pl2.setPlayerDeck(pl2Deck);
     pl2ThrownCards.clear();
 }
@@ -243,8 +243,9 @@ string &ariel::Game::numberToCardShape(int index, string &cardShape) {
 }
 
 void ariel::Game::shuffleGameDeckAndDeal(std::array<ariel::Card, CARD_DECK_SIZE> deck) {
-    unsigned seed = time(nullptr);
-    shuffle(deck.begin(), (deck.end()), default_random_engine(seed));
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::shuffle(deck.begin(), deck.end(), generator);
     vector<Card> pl1Deck;
     vector<Card> pl2Deck;
     for (size_t i = 0; i < deck.size(); i++) {
