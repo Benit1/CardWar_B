@@ -14,7 +14,7 @@ class Logger {
 
 private:
     std::vector<std::string> logs;
-    winner winner;
+    winner gameWinner;
 public:
 
     Logger();

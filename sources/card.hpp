@@ -23,14 +23,8 @@ namespace ariel {
 
         string toString() const;
 
-        int getCard_number() const;
-
-        string getShape() const;
-
         enum winner compare(const Card& other) const;
 
     };
 }
-
-
 #endif //CARDWAR_A_MAIN_CARD_H

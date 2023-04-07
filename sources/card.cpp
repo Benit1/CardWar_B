@@ -5,26 +5,19 @@
 #include <utility>
 
 using namespace std;
+using namespace ariel;
 
-ariel::Card::Card(int card_number, string shape) {
+Card::Card(int card_number, string shape) {
     this->card_number = card_number;
     this->shape = std::move(shape);
 }
 
-ariel::Card::Card() {
+Card::Card() {
     this->card_number = 1;
     this->shape = "Clubs";
 }
 
-int ariel::Card::getCard_number() const {
-    return card_number;
-}
-
-string ariel::Card::getShape() const {
-    return shape;
-}
-
-string ariel::Card::toString() const {
+string Card::toString() const {
     //(ace(1),2-10,Jack(11),queen(12),king(13))
     std::string numberString;
     switch (this->card_number) {
@@ -55,7 +48,7 @@ string ariel::Card::toString() const {
 // 0 for draw
 // 1 for this wins
 // 2 for other wins
-enum winner ariel::Card::compare(const Card &other) const {
+enum winner Card::compare(const Card &other) const {
     if (this->card_number == 1 && other.card_number == 2) {
         return player2;
     } else if (this->card_number == 2 && other.card_number == 1) {

@@ -4,7 +4,9 @@
 #include "game.hpp"
 #include <random>
 
-ariel::Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), logger(), turns(0) {
+using namespace ariel;
+
+Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), logger(), turns(0) {
     pl1.setPlaying(true);
     pl2.setPlaying(true);
     this->setCardDeck();
@@ -12,14 +14,14 @@ ariel::Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), logger(), turn
 
 }
 
-void ariel::Game::playAll() {
+void Game::playAll() {
     while (logger.getWinner() == 3) {
         this->playTurn();
     }
 }
 
-void ariel::Game::playTurn() {
-    if (pl1.getID() == pl2.getID()) {
+void Game::playTurn() {
+    if (&pl1 == &pl2) {
         throw std::invalid_argument("Both players are the same");
     }
     if (logger.getWinner() != 3) {
@@ -36,7 +38,7 @@ void ariel::Game::playTurn() {
     enum winner currentWinner;
     int round = 0;
     if (pl1.stacksize() > 0 || pl2.stacksize() > 0) {
-        if (pl1.stacksize() <= 1 || pl2.stacksize() <= 1) {
+        if (pl1.stacksize() <= 2 || pl2.stacksize() <= 2) {
             lowAmountOfCards = true;
         }
         Card pl1Card;
@@ -98,17 +100,19 @@ void ariel::Game::playTurn() {
     }
 }
 
-void ariel::Game::drawCardEach(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, ariel::Card &pl1Card,
-                               ariel::Card &pl2Card) {
+void Game::drawCardEach(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
+                        Card &pl2Card) {
     pl1Card = pl1.drawCard();
     pl2Card = pl2.drawCard();
     pl1ThrownCards.push_back(pl1Card);
     pl2ThrownCards.push_back(pl2Card);
 }
 
-void ariel::Game::setWinner() {
+void Game::setWinner() {
     int pl1Cards = pl1.cardesTaken();
     int pl2Cards = pl2.cardesTaken();
+    pl1.cleanDeck();
+    pl2.cleanDeck();
     pl1.setPlaying(false);
     pl2.setPlaying(false);
     if (pl1Cards > pl2Cards) {
@@ -120,8 +124,8 @@ void ariel::Game::setWinner() {
     }
 }
 
-void ariel::Game::draw2Cards(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, ariel::Card &pl1Card,
-                             ariel::Card &pl2Card) {
+void Game::draw2Cards(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
+                      Card &pl2Card) {
     pl1ThrownCards.push_back(pl1.drawCard());
     pl2ThrownCards.push_back(pl2.drawCard());
     pl1Card = pl1.drawCard();
@@ -131,43 +135,48 @@ void ariel::Game::draw2Cards(vector<Card> &pl1ThrownCards, vector<Card> &pl2Thro
 
 }
 
-void ariel::Game::updateDraws() {
+void Game::updateDraws() {
     pl1.setDrawRate(turns);
     pl2.setDrawRate(turns);
     pl1.setDraws();
     pl2.setDraws();
 }
 
-void ariel::Game::reshuffle(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards) {
-    vector<Card> pl1Deck = pl1.getPlayerDeck();
-    for (const Card &card: pl1ThrownCards) {
-        pl1Deck.push_back(card);
-    }
+void Game::reshuffle(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards) {
+    vector<Card> pl1Deck = insertIntoDeck(pl1ThrownCards, 1);
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(pl1Deck.begin(), pl1Deck.end(), generator);
     pl1.setPlayerDeck(pl1Deck);
     pl1ThrownCards.clear();
-    vector<Card> pl2Deck = pl2.getPlayerDeck();
-    for (const Card &card: pl1ThrownCards) {
-        pl1Deck.push_back(card);
-    }
+    vector<Card> pl2Deck = insertIntoDeck(pl2ThrownCards, 2);
     std::shuffle(pl2Deck.begin(), pl2Deck.end(), generator);
     pl2.setPlayerDeck(pl2Deck);
     pl2ThrownCards.clear();
 }
 
+vector<Card> Game::insertIntoDeck(vector<Card> &plThrownCards, int playerNumber) const {
+    vector<Card> plDeck;
+    if (playerNumber == 1) {
+        plDeck = pl1.getPlayerDeck();
+    } else {
+        plDeck = pl2.getPlayerDeck();
+    }
+    plDeck.insert(plThrownCards.end(), plDeck.begin(), plDeck.end());
+    return plDeck;
+}
+
 void
-ariel::Game::player1WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
-                            winner &currentWinner,
-                            const ariel::Card &pl1Card, const ariel::Card &pl2Card) {
+Game::player1WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
+                     winner &currentWinner,
+                     const Card &pl1Card, const Card &pl2Card) {
     pl1.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
     pl1.setWins();
     setRates();
     logger.addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
 }
 
-void ariel::Game::setRates() {
+void Game::setRates() {
     pl1.setWinRate(turns);
     pl2.setWinRate(turns);
     pl1.setDrawRate(turns);
@@ -175,41 +184,41 @@ void ariel::Game::setRates() {
 }
 
 void
-ariel::Game::player2WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
-                            winner &currentWinner,
-                            const ariel::Card &pl1Card, const ariel::Card &pl2Card) {
+Game::player2WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
+                     winner &currentWinner,
+                     const Card &pl1Card, const Card &pl2Card) {
     pl2.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
     pl2.setWins();
     setRates();
     logger.addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
 }
 
-void ariel::Game::printLastTurn() {
+void Game::printLastTurn() {
     logger.printLastTurn();
 }
 
-void ariel::Game::printLog() {
+void Game::printLog() {
     logger.printLog();
 }
 
-void ariel::Game::printStats() const {
+void Game::printStats() const {
     Logger::printStats(this->getPl1(), this->getPl2());
 }
 
-void ariel::Game::printWiner() {
+void Game::printWiner() {
     logger.printWinner(pl1.getPlayerName(), pl2.getPlayerName());
 }
 
-ariel::Player &ariel::Game::getPl1() const {
+Player &Game::getPl1() const {
     return pl1;
 }
 
 
-ariel::Player &ariel::Game::getPl2() const {
+Player &Game::getPl2() const {
     return pl2;
 }
 
-void ariel::Game::setCardDeck() {
+void Game::setCardDeck() {
     array<Card, CARD_DECK_SIZE> newDeck;
     for (size_t index = 0; index < 13; ++index) {
         for (size_t jndex = 0; jndex < 4; ++jndex) {
@@ -222,7 +231,7 @@ void ariel::Game::setCardDeck() {
     this->card_deck = newDeck;
 }
 
-string &ariel::Game::numberToCardShape(int index, string &cardShape) {
+string &Game::numberToCardShape(int index, string &cardShape) {
     switch (index) {
         case 0:
             cardShape = "Clubs (♣)";
@@ -242,7 +251,7 @@ string &ariel::Game::numberToCardShape(int index, string &cardShape) {
     return cardShape;
 }
 
-void ariel::Game::shuffleGameDeckAndDeal(std::array<ariel::Card, CARD_DECK_SIZE> deck) {
+void Game::shuffleGameDeckAndDeal(std::array<Card, CARD_DECK_SIZE> deck) {
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(deck.begin(), deck.end(), generator);

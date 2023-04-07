@@ -7,9 +7,9 @@
 using namespace ariel;
 
 void Logger::printWinner(const std::string &pl1Name, const std::string &pl2Name) {
-    switch (winner) {
+    switch (gameWinner) {
         case draw:
-            std::cout << "No winner the game ended in a draw." << std::endl;
+            std::cout << "No gameWinner the game ended in a draw." << std::endl;
         case player1:
             std::cout << "The Winner is: " << pl1Name << std::endl;
             break;
@@ -61,14 +61,14 @@ void Logger::addLog(enum winner turnWinner, const ariel::Player &pl1, const arie
 }
 
 winner Logger::getWinner() const {
-    return winner;
+    return gameWinner;
 }
 
 void Logger::setWinner(enum winner winner) {
-    Logger::winner = winner;
+    Logger::gameWinner = winner;
 }
 
-Logger::Logger() : winner(static_cast<enum winner>(3)) {
+Logger::Logger() : gameWinner(static_cast<enum winner>(3)) {
 
 }
 

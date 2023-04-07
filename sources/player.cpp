@@ -7,79 +7,55 @@
 #include <utility>
 
 using namespace std;
+using namespace ariel;
+
+Player::Player(std::string player_name) : player_name(std::move(player_name)),
+                                          cards_taken(0), draws(0), drawRate(0), wins(0),
+                                          winRate(0), playing(false) {}
 
 
-ariel::Player::Player(std::string player_name) : player_name(std::move(player_name)),
-                                                 cards_taken(0), draws(0), drawRate(0), wins(0),
-                                                 winRate(0), playing(false), id(increaseID()) {}
-
-
-int ariel::Player::stacksize() const {
+int Player::stacksize() const {
     return (int) this->player_deck.size();
 }
 
-int ariel::Player::cardesTaken() const {
+int Player::cardesTaken() const {
     return this->cards_taken;
 }
 
-const string &ariel::Player::getPlayerName() const {
+const string &Player::getPlayerName() const {
     return player_name;
 }
 
-void ariel::Player::setPlayerName(const string &playerName) {
-    player_name = playerName;
-}
-
-bool ariel::Player::isPlaying() const {
+bool Player::isPlaying() const {
     return playing;
 }
 
-void ariel::Player::setPlaying(bool playing) {
-    Player::playing = playing;
+void Player::setPlaying(bool playingState) {
+    Player::playing = playingState;
 }
 
-int ariel::Player::getWins() const {
-    return wins;
-}
-
-void ariel::Player::setWins() {
+void Player::setWins() {
     Player::wins += 1;
 }
 
-double ariel::Player::getWinRate() const {
-    return winRate;
-}
-
-void ariel::Player::setWinRate(int turns) {
+void Player::setWinRate(int turns) {
     Player::winRate = 100 * (((double) this->wins) / turns);
 
 }
 
-int ariel::Player::getDraws() const {
-    return draws;
-}
-
-void ariel::Player::setDraws() {
+void Player::setDraws() {
     Player::draws += 1;
 }
 
-double ariel::Player::getDrawRate() const {
-    return drawRate;
-}
-
-void ariel::Player::setDrawRate(int turns) {
+void Player::setDrawRate(int turns) {
     Player::drawRate = 100 * (((double) this->draws) / turns);
 }
 
-const vector<ariel::Card> &ariel::Player::getSideDeck() const {
+const vector<Card> &Player::getSideDeck() const {
     return side_deck;
 }
 
-void ariel::Player::setSideDeck(const vector<Card> &sideDeck) {
-    side_deck = sideDeck;
-}
-
-std::string ariel::Player::toString() const {
+std::string Player::toString() const {
     std::string playingString;
     if (playing) {
         playingString = "true";
@@ -89,31 +65,24 @@ std::string ariel::Player::toString() const {
            to_string(drawRate) + " cards Taken: " + to_string(cards_taken) + " In game: " + playingString;
 }
 
-const vector<ariel::Card> &ariel::Player::getPlayerDeck() const {
+const vector<Card> &Player::getPlayerDeck() const {
     return player_deck;
 }
 
-void ariel::Player::setPlayerDeck(const vector<Card> &playerDeck) {
+void Player::setPlayerDeck(const vector<Card> &playerDeck) {
     player_deck = playerDeck;
 }
 
-void ariel::Player::setCardsTaken(size_t cardsTaken) {
-    cards_taken += cardsTaken;
+void Player::setCardsTaken(size_t cardsTaken) {
+    cards_taken += (int) cardsTaken;
 }
 
-const ariel::Card &ariel::Player::drawCard() {
+const Card &Player::drawCard() {
     const Card &card = this->player_deck.back();
     this->player_deck.pop_back();
     return card;
 }
 
-
-unsigned long ariel::Player::getID() const {
-    return id;
+void Player::cleanDeck() {
+    this->player_deck.clear();
 }
-
-unsigned long ariel::Player::increaseID() {
-    static unsigned long idStatic = 1;
-    return idStatic++;
-}
-

@@ -14,7 +14,6 @@ using namespace std;
 namespace ariel {
     class Player {
     private:
-        unsigned long const id;
         int cards_taken;
         string player_name;
         std::vector<ariel::Card> player_deck;
@@ -36,25 +35,15 @@ namespace ariel {
 
         const string &getPlayerName() const;
 
-        void setPlayerName(const string &playerName);
-
         bool isPlaying() const;
 
-        void setPlaying(bool playing);
-
-        int getWins() const;
+        void setPlaying(bool playingState);
 
         void setWins();
 
-        double getWinRate() const;
-
         void setWinRate(int turns);
 
-        int getDraws() const;
-
         void setDraws();
-
-        double getDrawRate() const;
 
         void setDrawRate(int turns);
 
@@ -64,15 +53,11 @@ namespace ariel {
 
         const vector<Card> &getSideDeck() const;
 
-        void setSideDeck(const vector<Card> &sideDeck);
-
         std::string toString() const;
 
         const Card &drawCard();
 
-        unsigned long getID() const;
-
-        unsigned long increaseID();
+        void cleanDeck();
     };
 }
 

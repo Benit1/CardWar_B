@@ -70,6 +70,8 @@ namespace ariel {
         void drawCardEach(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card, Card &pl2Card);
 
         void setRates();
+
+        vector<Card> insertIntoDeck(vector<Card> &plThrownCards, int playerNumber) const;
     };
 }
 
