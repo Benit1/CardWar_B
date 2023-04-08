@@ -2,11 +2,12 @@
 // Created by beni on 3/25/23.
 //
 #include "game.hpp"
-#include <random>
+#include "algorithm"
+#include "random"
 
 using namespace ariel;
 
-Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), logger(), turns(0) {
+Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), turns(0), gameWinner(noWinner) {
     pl1.setPlaying(true);
     pl2.setPlaying(true);
     this->setCardDeck();
@@ -15,7 +16,7 @@ Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), logger(), turns(0) {
 }
 
 void Game::playAll() {
-    while (logger.getWinner() == 3) {
+    while (getWinner() == 3) {
         this->playTurn();
     }
 }
@@ -24,16 +25,15 @@ void Game::playTurn() {
     if (&pl1 == &pl2) {
         throw std::invalid_argument("Both players are the same");
     }
-    if (logger.getWinner() != 3) {
+    if (getWinner() != 3) {
         throw logic_error("Game has ended can't play another turn");
     }
     if (!pl1.isPlaying() && !pl2.isPlaying()) {
         throw std::logic_error("The game has ended");
     }
-    string turnLog;
     turns++;
-    vector<Card> pl1ThrownCards = pl1.getSideDeck();
-    vector<Card> pl2ThrownCards = pl1.getSideDeck();
+    vector <Card> pl1ThrownCards = pl1.getSideDeck();
+    vector <Card> pl2ThrownCards = pl1.getSideDeck();
     bool lowAmountOfCards = false;
     enum winner currentWinner;
     int round = 0;
@@ -66,7 +66,7 @@ void Game::playTurn() {
                 }
                 round += 1;
                 updateDraws();
-                logger.addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
+                addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
                 if (lowAmountOfCards) {
                     reshuffle(pl1ThrownCards, pl2ThrownCards);
                     drawCardEach(pl1ThrownCards, pl2ThrownCards, pl1Card, pl2Card);
@@ -100,7 +100,7 @@ void Game::playTurn() {
     }
 }
 
-void Game::drawCardEach(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
+void Game::drawCardEach(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards, Card &pl1Card,
                         Card &pl2Card) {
     pl1Card = pl1.drawCard();
     pl2Card = pl2.drawCard();
@@ -116,15 +116,15 @@ void Game::setWinner() {
     pl1.setPlaying(false);
     pl2.setPlaying(false);
     if (pl1Cards > pl2Cards) {
-        logger.setWinner(player1);
+        setWinner(player1);
     } else if (pl1Cards < pl2Cards) {
-        logger.setWinner(player2);
+        setWinner(player2);
     } else {
-        logger.setWinner(draw);
+        setWinner(draw);
     }
 }
 
-void Game::draw2Cards(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
+void Game::draw2Cards(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards, Card &pl1Card,
                       Card &pl2Card) {
     pl1ThrownCards.push_back(pl1.drawCard());
     pl2ThrownCards.push_back(pl2.drawCard());
@@ -142,21 +142,21 @@ void Game::updateDraws() {
     pl2.setDraws();
 }
 
-void Game::reshuffle(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards) {
-    vector<Card> pl1Deck = insertIntoDeck(pl1ThrownCards, 1);
+void Game::reshuffle(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards) {
+    vector <Card> pl1Deck = insertIntoDeck(pl1ThrownCards, 1);
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(pl1Deck.begin(), pl1Deck.end(), generator);
     pl1.setPlayerDeck(pl1Deck);
     pl1ThrownCards.clear();
-    vector<Card> pl2Deck = insertIntoDeck(pl2ThrownCards, 2);
+    vector <Card> pl2Deck = insertIntoDeck(pl2ThrownCards, 2);
     std::shuffle(pl2Deck.begin(), pl2Deck.end(), generator);
     pl2.setPlayerDeck(pl2Deck);
     pl2ThrownCards.clear();
 }
 
-vector<Card> Game::insertIntoDeck(vector<Card> &plThrownCards, int playerNumber) const {
-    vector<Card> plDeck;
+vector <Card> Game::insertIntoDeck(vector <Card> &plThrownCards, int playerNumber) const {
+    vector <Card> plDeck;
     if (playerNumber == 1) {
         plDeck = pl1.getPlayerDeck();
     } else {
@@ -167,13 +167,13 @@ vector<Card> Game::insertIntoDeck(vector<Card> &plThrownCards, int playerNumber)
 }
 
 void
-Game::player1WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
+Game::player1WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &pl2ThrownCards,
                      winner &currentWinner,
                      const Card &pl1Card, const Card &pl2Card) {
     pl1.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
     pl1.setWins();
     setRates();
-    logger.addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
+    addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
 }
 
 void Game::setRates() {
@@ -184,29 +184,53 @@ void Game::setRates() {
 }
 
 void
-Game::player2WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
+Game::player2WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &pl2ThrownCards,
                      winner &currentWinner,
                      const Card &pl1Card, const Card &pl2Card) {
     pl2.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
     pl2.setWins();
     setRates();
-    logger.addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
+    addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
 }
 
 void Game::printLastTurn() {
-    logger.printLastTurn();
+    std::cout << logs.back() << std::endl;
 }
 
 void Game::printLog() {
-    logger.printLog();
+    string str;
+    for (const string &currentTurn: logs) {
+        if (currentTurn.find("draw") != string::npos) {
+            str += currentTurn;
+        } else {
+            str += currentTurn;
+            std::cout << str << std::endl;
+            str = "";
+        }
+    }
 }
 
 void Game::printStats() const {
-    Logger::printStats(this->getPl1(), this->getPl2());
+    std::cout << pl1.toString() << std::endl;
+    std::cout << pl2.toString() << std::endl;
 }
 
 void Game::printWiner() {
-    logger.printWinner(pl1.getPlayerName(), pl2.getPlayerName());
+    switch (gameWinner) {
+        case draw:
+            std::cout << "No gameWinner the game ended in a draw." << std::endl;
+        case player1:
+            std::cout << "The Winner is: " << pl1.getPlayerName() << std::endl;
+            break;
+        case player2:
+            std::cout << "The Winner is: " << pl1.getPlayerName() << std::endl;
+            break;
+        case noWinner:
+            std::cout << "No Winner" << std::endl;
+            break;
+        default:
+            break;
+    }
 }
 
 Player &Game::getPl1() const {
@@ -219,7 +243,7 @@ Player &Game::getPl2() const {
 }
 
 void Game::setCardDeck() {
-    array<Card, CARD_DECK_SIZE> newDeck;
+    array <Card, CARD_DECK_SIZE> newDeck;
     for (size_t index = 0; index < 13; ++index) {
         for (size_t jndex = 0; jndex < 4; ++jndex) {
             std::string cardShape;
@@ -251,12 +275,12 @@ string &Game::numberToCardShape(int index, string &cardShape) {
     return cardShape;
 }
 
-void Game::shuffleGameDeckAndDeal(std::array<Card, CARD_DECK_SIZE> deck) {
+void Game::shuffleGameDeckAndDeal(std::array <Card, CARD_DECK_SIZE> deck) {
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(deck.begin(), deck.end(), generator);
-    vector<Card> pl1Deck;
-    vector<Card> pl2Deck;
+    vector <Card> pl1Deck;
+    vector <Card> pl2Deck;
     for (size_t i = 0; i < deck.size(); i++) {
         if (i < 26) {
             pl1Deck.push_back(deck[i]);
@@ -266,4 +290,26 @@ void Game::shuffleGameDeckAndDeal(std::array<Card, CARD_DECK_SIZE> deck) {
     }
     pl1.setPlayerDeck(pl1Deck);
     pl2.setPlayerDeck(pl2Deck);
+}
+
+void Game::addLog(enum winner turnWinner, const ariel::Player &pl1, const ariel::Player &pl2, const Card &card1,
+                  const Card &card2) {
+    std::string logRow = pl1.getPlayerName() + " played " + card1.toString() + ". "
+                         + pl2.getPlayerName() + "played " + card2.toString() + ". ";
+    if (turnWinner == player1) {
+        logRow += pl1.getPlayerName() + " wins.";
+    } else if (turnWinner == player2) {
+        logRow += pl2.getPlayerName() + " wins.";
+    } else if (turnWinner == draw) {
+        logRow += "draw.";
+    }
+    logs.push_back(logRow);
+}
+
+winner Game::getWinner() const {
+    return gameWinner;
+}
+
+void Game::setWinner(enum winner winner) {
+    Game::gameWinner = winner;
 }

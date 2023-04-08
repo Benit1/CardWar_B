@@ -2,7 +2,6 @@
 // Created by beni on 3/21/23.
 //
 #include "card.hpp"
-#include <utility>
 
 using namespace std;
 using namespace ariel;

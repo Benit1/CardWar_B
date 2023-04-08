@@ -4,9 +4,6 @@
 
 #include "player.hpp"
 
-#include <utility>
-
-using namespace std;
 using namespace ariel;
 
 Player::Player(std::string player_name) : player_name(std::move(player_name)),

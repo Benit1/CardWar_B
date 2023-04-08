@@ -9,9 +9,6 @@
 #include <iostream>
 #include "player.hpp"
 #include "card.hpp"
-#include "logger.hpp"
-#include "algorithm"
-#include "random"
 
 static constexpr int CARD_DECK_SIZE = 52;
 
@@ -21,9 +18,9 @@ namespace ariel {
         Player &pl1;
         Player &pl2;
         std::array<Card, CARD_DECK_SIZE> card_deck;
-        Logger logger;
         int turns;
-
+        std::vector<std::string> logs;
+        winner gameWinner;
 
     public:
         Game(Player &pl1, Player &pl2);
@@ -72,6 +69,14 @@ namespace ariel {
         void setRates();
 
         vector<Card> insertIntoDeck(vector<Card> &plThrownCards, int playerNumber) const;
+
+        void
+        addLog(enum winner turnWinner, const ariel::Player &pl1, const ariel::Player &pl2, const ariel::Card &card1,
+               const ariel::Card &card2);
+
+        enum winner getWinner() const;
+
+        void setWinner(enum winner winner);
     };
 }
 
