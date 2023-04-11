@@ -48,7 +48,7 @@ void Player::setDrawRate(int turns) {
     Player::drawRate = 100 * (((double) this->draws) / turns);
 }
 
-const vector<Card> &Player::getSideDeck() const {
+const vector <Card> &Player::getSideDeck() const {
     return side_deck;
 }
 
@@ -62,11 +62,11 @@ std::string Player::toString() const {
            to_string(drawRate) + " cards Taken: " + to_string(cards_taken) + " In game: " + playingString;
 }
 
-const vector<Card> &Player::getPlayerDeck() const {
+const vector <Card> &Player::getPlayerDeck() const {
     return player_deck;
 }
 
-void Player::setPlayerDeck(const vector<Card> &playerDeck) {
+void Player::setPlayerDeck(const vector <Card> &playerDeck) {
     player_deck = playerDeck;
 }
 
@@ -82,4 +82,14 @@ const Card &Player::drawCard() {
 
 void Player::cleanDeck() {
     this->player_deck.clear();
+}
+
+void Player::resetPlayer() {
+    cards_taken = 0;
+    player_deck.clear();
+    side_deck.clear();
+    wins = 0;
+    winRate = 0;
+    draws = 0;
+    drawRate = 0;
 }

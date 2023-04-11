@@ -8,8 +8,15 @@
 using namespace ariel;
 
 Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), turns(0), gameWinner(noWinner) {
-    pl1.setPlaying(true);
-    pl2.setPlaying(true);
+
+    if (!this->pl1.isPlaying()) {
+        this->pl1.resetPlayer();
+    }
+    if (!this->pl2.isPlaying()) {
+        this->pl2.resetPlayer();
+    }
+    this->pl1.setPlaying(true);
+    this->pl2.setPlaying(true);
     this->setCardDeck();
     shuffleGameDeckAndDeal(this->card_deck);
 

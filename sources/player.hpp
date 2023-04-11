@@ -16,8 +16,8 @@ namespace ariel {
     private:
         int cards_taken;
         string player_name;
-        std::vector<ariel::Card> player_deck;
-        std::vector<ariel::Card> side_deck;
+        std::vector <ariel::Card> player_deck;
+        std::vector <ariel::Card> side_deck;
         bool playing;
         int wins;
         double winRate;
@@ -47,17 +47,19 @@ namespace ariel {
 
         void setDrawRate(int turns);
 
-        const vector<Card> &getPlayerDeck() const;
+        const vector <Card> &getPlayerDeck() const;
 
-        void setPlayerDeck(const vector<Card> &playerDeck);
+        void setPlayerDeck(const vector <Card> &playerDeck);
 
-        const vector<Card> &getSideDeck() const;
+        const vector <Card> &getSideDeck() const;
 
         std::string toString() const;
 
         const Card &drawCard();
 
         void cleanDeck();
+
+        void resetPlayer();
     };
 }
 
