@@ -196,8 +196,8 @@ Game::player2WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &p
 void Game::printLastTurn() {
     string str = logs.back();
     for (int i = logs.size() - 2; i >= 0; i--) {
-        if (logs.at((int) i).find("draw") != string::npos) {
-            str.insert(0, logs.at((int) i));
+        if (logs.at((size_t) i).find("draw") != string::npos) {
+            str.insert(0, logs.at((size_t) i));
         } else {
             break;
         }
