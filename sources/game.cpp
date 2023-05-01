@@ -7,6 +7,7 @@
 
 using namespace ariel;
 
+//normal constructor that init a new game
 Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), turns(0), gameWinner(noWinner) {
 
     if (!this->pl1.isPlaying()) {
@@ -22,12 +23,25 @@ Game::Game(Player &pl1, Player &pl2) : pl1(pl1), pl2(pl2), turns(0), gameWinner(
 
 }
 
+//Play the game until there is a winner && throws logic_error if trying to play again after the game ended
 void Game::playAll() {
+    if (getWinner() != noWinner) throw std::logic_error("game has ended");
     while (getWinner() == 3) {
         this->playTurn();
     }
 }
 
+//play a turn
+//  remove the top card from both decks and compare them
+//  save the log of that turn
+//  if there is a tie between the 2 cards the turn will continue until there is a winner
+//  if there is a tie the 2 players will put 1 card on the "back" and one faced up
+//  that will be compared against the other player's card
+//  that will happen as long as both players have enough cards to play the "war"
+//  throws logic_error happens with 3 cases
+//  1) if both players are the same
+//  2) the game ended
+//  3)Players already registered to another game
 void Game::playTurn() {
     if (&pl1 == &pl2) {
         throw std::invalid_argument("Both players are the same");
@@ -39,8 +53,8 @@ void Game::playTurn() {
         throw std::logic_error("The game has ended");
     }
     turns++;
-    vector <Card> pl1ThrownCards = pl1.getSideDeck();
-    vector <Card> pl2ThrownCards = pl1.getSideDeck();
+    vector<Card> pl1ThrownCards = pl1.getSideDeck();
+    vector<Card> pl2ThrownCards = pl1.getSideDeck();
     bool lowAmountOfCards = false;
     enum winner currentWinner;
     int round = 0;
@@ -107,7 +121,8 @@ void Game::playTurn() {
     }
 }
 
-void Game::drawCardEach(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards, Card &pl1Card,
+//draw a card for each player and add it to the thrown cards vector
+void Game::drawCardEach(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
                         Card &pl2Card) {
     pl1Card = pl1.drawCard();
     pl2Card = pl2.drawCard();
@@ -115,6 +130,7 @@ void Game::drawCardEach(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownC
     pl2ThrownCards.push_back(pl2Card);
 }
 
+//Check which player have more cards taken and set the winner according to the result
 void Game::setWinner() {
     int pl1Cards = pl1.cardesTaken();
     int pl2Cards = pl2.cardesTaken();
@@ -131,7 +147,8 @@ void Game::setWinner() {
     }
 }
 
-void Game::draw2Cards(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards, Card &pl1Card,
+//draw 2 cards for each player and add it to the thrown cards vector
+void Game::draw2Cards(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards, Card &pl1Card,
                       Card &pl2Card) {
     pl1ThrownCards.push_back(pl1.drawCard());
     pl2ThrownCards.push_back(pl2.drawCard());
@@ -142,6 +159,7 @@ void Game::draw2Cards(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCar
 
 }
 
+//update the draw rate for both players
 void Game::updateDraws() {
     pl1.setDrawRate(turns);
     pl2.setDrawRate(turns);
@@ -149,21 +167,23 @@ void Game::updateDraws() {
     pl2.setDraws();
 }
 
-void Game::reshuffle(vector <Card> &pl1ThrownCards, vector <Card> &pl2ThrownCards) {
-    vector <Card> pl1Deck = insertIntoDeck(pl1ThrownCards, 1);
+//shuffle both players deck randomly
+void Game::reshuffle(vector<Card> &pl1ThrownCards, vector<Card> &pl2ThrownCards) {
+    vector<Card> pl1Deck = insertIntoDeck(pl1ThrownCards, 1);
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(pl1Deck.begin(), pl1Deck.end(), generator);
     pl1.setPlayerDeck(pl1Deck);
     pl1ThrownCards.clear();
-    vector <Card> pl2Deck = insertIntoDeck(pl2ThrownCards, 2);
+    vector<Card> pl2Deck = insertIntoDeck(pl2ThrownCards, 2);
     std::shuffle(pl2Deck.begin(), pl2Deck.end(), generator);
     pl2.setPlayerDeck(pl2Deck);
     pl2ThrownCards.clear();
 }
 
-vector <Card> Game::insertIntoDeck(vector <Card> &plThrownCards, int playerNumber) const {
-    vector <Card> plDeck;
+//add all the thrown cards back to the deck
+vector<Card> Game::insertIntoDeck(vector<Card> &plThrownCards, int playerNumber) const {
+    vector<Card> plDeck;
     if (playerNumber == 1) {
         plDeck = pl1.getPlayerDeck();
     } else {
@@ -173,8 +193,12 @@ vector <Card> Game::insertIntoDeck(vector <Card> &plThrownCards, int playerNumbe
     return plDeck;
 }
 
+//player 1 won this turn
+//  increase the amount of cards taken
+//  set both player win rate and draw rate
+//  and add the turn to the turn logs
 void
-Game::player1WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &pl2ThrownCards,
+Game::player1WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
                      winner &currentWinner,
                      const Card &pl1Card, const Card &pl2Card) {
     pl1.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
@@ -183,6 +207,7 @@ Game::player1WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &p
     addLog(currentWinner, pl1, pl2, pl1Card, pl2Card);
 }
 
+//update the win rate for both players
 void Game::setRates() {
     pl1.setWinRate(turns);
     pl2.setWinRate(turns);
@@ -190,8 +215,12 @@ void Game::setRates() {
     pl2.setDrawRate(turns);
 }
 
+//player 2 won this turn
+//  increase the amount of cards taken
+//  set both player win rate and draw rate
+//  and add the turn to the logs
 void
-Game::player2WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &pl2ThrownCards,
+Game::player2WonTurn(const vector<Card> &pl1ThrownCards, const vector<Card> &pl2ThrownCards,
                      winner &currentWinner,
                      const Card &pl1Card, const Card &pl2Card) {
     pl2.setCardsTaken(pl1ThrownCards.size() + pl2ThrownCards.size());
@@ -201,6 +230,7 @@ Game::player2WonTurn(const vector <Card> &pl1ThrownCards, const vector <Card> &p
 }
 
 void Game::printLastTurn() {
+    if (logs.empty()) throw logic_error("no logs yet");
     string str = logs.back();
     for (int i = logs.size() - 2; i >= 0; i--) {
         if (logs.at((size_t) i).find("draw") != string::npos) {
@@ -212,6 +242,7 @@ void Game::printLastTurn() {
     std::cout << str << std::endl;
 }
 
+//print the entire game log
 void Game::printLog() {
     string str;
     for (const string &currentTurn: logs) {
@@ -257,8 +288,9 @@ Player &Game::getPl2() const {
     return pl2;
 }
 
+//generate the deck with 52 cards 4 of each kind(ace-king)
 void Game::setCardDeck() {
-    array <Card, CARD_DECK_SIZE> newDeck;
+    array<Card, CARD_DECK_SIZE> newDeck;
     for (size_t index = 0; index < 13; ++index) {
         for (size_t jndex = 0; jndex < 4; ++jndex) {
             std::string cardShape;
@@ -290,12 +322,13 @@ string &Game::numberToCardShape(int index, string &cardShape) {
     return cardShape;
 }
 
-void Game::shuffleGameDeckAndDeal(std::array <Card, CARD_DECK_SIZE> deck) {
+//shuffle the deck and give 26 cards for each player
+void Game::shuffleGameDeckAndDeal(std::array<Card, CARD_DECK_SIZE> deck) {
     std::random_device rd;
     std::mt19937 generator(rd());
     std::shuffle(deck.begin(), deck.end(), generator);
-    vector <Card> pl1Deck;
-    vector <Card> pl2Deck;
+    vector<Card> pl1Deck;
+    vector<Card> pl2Deck;
     for (size_t i = 0; i < deck.size(); i++) {
         if (i < 26) {
             pl1Deck.push_back(deck[i]);
@@ -307,6 +340,7 @@ void Game::shuffleGameDeckAndDeal(std::array <Card, CARD_DECK_SIZE> deck) {
     pl2.setPlayerDeck(pl2Deck);
 }
 
+// build what happened in this turn and add it to the logs
 void Game::addLog(enum winner turnWinner, const ariel::Player &pl1, const ariel::Player &pl2, const Card &card1,
                   const Card &card2) {
     std::string logRow = pl1.getPlayerName() + " played " + card1.toString() + ". "

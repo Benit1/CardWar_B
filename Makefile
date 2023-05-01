@@ -20,6 +20,9 @@ demo: Demo.o $(OBJECTS)
 test1: TestRunner.o StudentTest1.o  $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@
 
+test2: TestRunner.o Test.o  $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $^ -o $@
+
 tidy:
 	clang-tidy $(HEADERS) $(TIDY_FLAGS) --
 

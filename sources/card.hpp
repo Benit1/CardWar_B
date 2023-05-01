@@ -24,6 +24,13 @@ namespace ariel {
 
         enum winner compare(const Card& other) const;
 
+        int getCardNumber() const;
+
+        void setCardNumber(int cardNumber);
+
+        const std::string &getShape() const;
+
+        void setShape(const std::string &shape);
     };
 }
 #endif //CARDWAR_A_MAIN_CARD_H

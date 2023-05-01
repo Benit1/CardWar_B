@@ -61,3 +61,19 @@ enum winner Card::compare(const Card &other) const {
     }
 }
 
+int Card::getCardNumber() const {
+    return card_number;
+}
+
+void Card::setCardNumber(int cardNumber) {
+    card_number = cardNumber;
+}
+
+const string &Card::getShape() const {
+    return shape;
+}
+
+void Card::setShape(const string &shape) {
+    Card::shape = shape;
+}
+

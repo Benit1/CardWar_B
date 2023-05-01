@@ -6,6 +6,7 @@
 
 using namespace ariel;
 
+//constructor
 Player::Player(std::string player_name) : player_name(std::move(player_name)),
                                           cards_taken(0), draws(0), drawRate(0), wins(0),
                                           winRate(0), playing(false) {}
@@ -48,10 +49,11 @@ void Player::setDrawRate(int turns) {
     Player::drawRate = 100 * (((double) this->draws) / turns);
 }
 
-const vector <Card> &Player::getSideDeck() const {
+const vector<Card> &Player::getSideDeck() const {
     return side_deck;
 }
 
+//return the player object as a string
 std::string Player::toString() const {
     std::string playingString;
     if (playing) {
@@ -62,11 +64,11 @@ std::string Player::toString() const {
            to_string(drawRate) + " cards Taken: " + to_string(cards_taken) + " In game: " + playingString;
 }
 
-const vector <Card> &Player::getPlayerDeck() const {
+const vector<Card> &Player::getPlayerDeck() const {
     return player_deck;
 }
 
-void Player::setPlayerDeck(const vector <Card> &playerDeck) {
+void Player::setPlayerDeck(const vector<Card> &playerDeck) {
     player_deck = playerDeck;
 }
 
@@ -84,6 +86,7 @@ void Player::cleanDeck() {
     this->player_deck.clear();
 }
 
+// reset the player stats
 void Player::resetPlayer() {
     cards_taken = 0;
     player_deck.clear();
