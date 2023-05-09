@@ -28,6 +28,7 @@ int main() {
     for (int i = 0; i < 5; i++) {
         game.playTurn();
     }
+    //Check if it's the same player
     if (&p1 == &game.getPl1()) {
         cout << "the same" << endl;
     }
@@ -37,6 +38,7 @@ int main() {
     Game game2(p1, p1);
     try {
         game2.playTurn();
+        //"catch(...)" is used to catch any exception thrown by the try block.
     } catch (...) {
         cerr << "Got an exception" << endl;
     }
